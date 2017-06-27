@@ -7,11 +7,14 @@ class PhpDB
 {
     private $inputStream;
     private $outputStream;
+    /** @var DataStore */
+    private $dataStore;
 
     function __construct($inputStream, $outputStream)
     {
         $this->inputStream = $inputStream;
         $this->outputStream = $outputStream;
+        $this->dataStore = new DataStore();
     }
 
     public function run() {
@@ -25,5 +28,10 @@ class PhpDB
                 break;
             }
         }
+    }
+
+    public function processCommand($command)
+    {
+        return '';
     }
 }

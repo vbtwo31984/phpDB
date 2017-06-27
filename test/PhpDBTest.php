@@ -12,6 +12,8 @@ class PhpDBTest extends TestCase
 
     protected function setUp()
     {
+        parent::setUp();
+
         // The input stream used to send commands to the app
         $this->inputStream = fopen('php://memory', 'w');
         // The output stream is used to read output from the app
@@ -28,5 +30,18 @@ class PhpDBTest extends TestCase
         rewind($this->outputStream);
         $line = stream_get_line($this->outputStream, 1024);
         $this->assertEquals("Welcome to PhpDB. Enter a command or 'quit' to exit\n> Bye\n", $line);
+    }
+
+    public function testListDatabasesReturnsEmptyStringWhenNoDatabases()
+    {
+        $result = $this->db->processCommand('list databases');
+        $this->assertEquals('', $result);
+    }
+
+    public function testListDatabasesReturnsDatabaseNameAfterAddingDatabase()
+    {
+        $this->db->processCommand('create database test');
+        $result = $this->db->processCommand('list databases');
+        $this->assertEquals('test', $result);
     }
 }
