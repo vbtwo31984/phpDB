@@ -32,6 +32,10 @@ class PhpDB
 
     public function processCommand($command)
     {
-        return '';
+        $command = strtolower(trim($command));
+
+        if(starts_with($command, 'create database ')) {
+
+        }
     }
 }

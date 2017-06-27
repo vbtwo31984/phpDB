@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__.'/src/utility_functions.php';
+
 // in production, would use Composer to manage dependencies and autoloading, since no 3rd party helpers are allowed,
 // register my own autoload function
 spl_autoload_register(function($class) {

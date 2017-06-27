@@ -40,7 +40,8 @@ class PhpDBTest extends TestCase
 
     public function testListDatabasesReturnsDatabaseNameAfterAddingDatabase()
     {
-        $this->db->processCommand('create database test');
+        $result = $this->db->processCommand('create database test');
+        $this->assertEquals('Database test created', $result);
         $result = $this->db->processCommand('list databases');
         $this->assertEquals('test', $result);
     }
