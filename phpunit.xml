@@ -2,6 +2,11 @@
 <phpunit
         colors="true"
         bootstrap="autoload.php">
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
     <testsuites>
         <testsuite name="PhpDB tests">
             <directory>./test/</directory>

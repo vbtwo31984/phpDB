@@ -32,6 +32,16 @@ class PhpDBTest extends TestCase
         $this->assertEquals("Welcome to PhpDB. Enter a command or 'quit' to exit\n> Bye\n", $line);
     }
 
+    public function testCanRunAndExecuteCommands()
+    {
+        fwrite($this->inputStream, "list databases\nquit\n");
+        rewind($this->inputStream);
+        $this->db->run();
+        rewind($this->outputStream);
+        $line = stream_get_line($this->outputStream, 1024);
+        $this->assertEquals("Welcome to PhpDB. Enter a command or 'quit' to exit\n> No databases\n> Bye\n", $line);
+    }
+
     public function testUnknownCommandReturnsError()
     {
         $result = $this->db->processCommand('Testing');
@@ -89,12 +99,6 @@ class PhpDBTest extends TestCase
         $this->assertEquals('Unknown database test', $result);
     }
 
-    public function testCreateTableWithoutUsingDatabaseReturnsError()
-    {
-        $result = $this->db->processCommand('create table test1 (id int, name varchar)');
-        $this->assertEquals('No active database', $result);
-    }
-
     public function testListTablesReturnsErrorMessageWithoutUsingDatabase()
     {
         $result = $this->db->processCommand('list tables');
@@ -111,4 +115,12 @@ class PhpDBTest extends TestCase
 
         $this->assertEquals('No tables in database test', $result);
     }
+
+    public function testCreateTableWithoutUsingDatabaseReturnsError()
+    {
+        $result = $this->db->processCommand('create table test1 (id int, name varchar)');
+        $this->assertEquals('No active database', $result);
+    }
+
+
 }
