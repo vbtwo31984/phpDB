@@ -32,10 +32,16 @@ class PhpDBTest extends TestCase
         $this->assertEquals("Welcome to PhpDB. Enter a command or 'quit' to exit\n> Bye\n", $line);
     }
 
-    public function testListDatabasesReturnsEmptyStringWhenNoDatabases()
+    public function testUnknownCommandReturnsError()
+    {
+        $result = $this->db->processCommand('Testing');
+        $this->assertEquals('Unknown command', $result);
+    }
+
+    public function testListDatabasesReturnsMessageWhenNoDatabases()
     {
         $result = $this->db->processCommand('list databases');
-        $this->assertEquals('', $result);
+        $this->assertEquals('No databases', $result);
     }
 
     public function testListDatabasesReturnsDatabaseNameAfterAddingDatabase()
@@ -44,5 +50,29 @@ class PhpDBTest extends TestCase
         $this->assertEquals('Database test created', $result);
         $result = $this->db->processCommand('list databases');
         $this->assertEquals('test', $result);
+    }
+
+    public function testListDatabasesReturnsDatabaseNamesAfterAddingMultipleDatabases()
+    {
+        $result = $this->db->processCommand('create database test');
+        $this->assertEquals('Database test created', $result);
+        $result = $this->db->processCommand('create database test2');
+        $this->assertEquals('Database test2 created', $result);
+        $result = $this->db->processCommand('list databases');
+        $this->assertEquals('test, test2', $result);
+    }
+
+    public function testCreatingDuplicateDatabasesReturnsError()
+    {
+        $this->db->processCommand('create database test');
+        $result = $this->db->processCommand('create database test');
+
+        $this->assertEquals('Database test already exists', $result);
+    }
+
+    public function testCreatingDatabaseWithInvalidNameReturnsError()
+    {
+        $result = $this->db->processCommand('create database test one');
+        $this->assertEquals('Name test one is invalid', $result);
     }
 }

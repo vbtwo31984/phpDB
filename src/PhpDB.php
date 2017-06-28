@@ -3,6 +3,9 @@
 namespace PhpDB;
 
 
+use PhpDB\Exceptions\DuplicateDatabaseException;
+use PhpDB\Exceptions\InvalidNameException;
+
 class PhpDB
 {
     private $inputStream;
@@ -23,10 +26,13 @@ class PhpDB
             fwrite($this->outputStream, '> ');
             $command = strtolower(trim(fgets($this->inputStream,1024)));
 
-            if($command == 'quit') {
+            if($command === 'quit') {
                 fwrite($this->outputStream, "Bye\n");
                 break;
             }
+
+            $message = $this->processCommand($command);
+            fwrite($this->outputStream, "$message\n");
         }
     }
 
@@ -34,8 +40,36 @@ class PhpDB
     {
         $command = strtolower(trim($command));
 
-        if(starts_with($command, 'create database ')) {
-
+        $createDbCommand = 'create database ';
+        if(starts_with($command, $createDbCommand)) {
+            return $this->createDatabase(trim_leading_string($command, $createDbCommand));
         }
+        if($command == 'list databases') {
+            return $this->listDatabases();
+        }
+
+        return 'Unknown command';
+    }
+
+    private function createDatabase($dbName)
+    {
+        try {
+            $db = new Database($dbName);
+            $this->dataStore->addDatabase($db);
+            return "Database $dbName created";
+        }
+        catch (DuplicateDatabaseException|InvalidNameException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    private function listDatabases()
+    {
+        $databases = $this->dataStore->getListOfDatabases();
+        if(count($databases) === 0) {
+            return 'No databases';
+        }
+
+        return implode(', ', $databases);
     }
 }
