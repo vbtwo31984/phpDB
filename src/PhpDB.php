@@ -12,6 +12,8 @@ class PhpDB
     private $outputStream;
     /** @var DataStore */
     private $dataStore;
+    /** @var Database */
+    private $activeDatabase;
 
     function __construct($inputStream, $outputStream)
     {
@@ -47,6 +49,18 @@ class PhpDB
         if($command == 'list databases') {
             return $this->listDatabases();
         }
+        $useDbCommand = 'use database ';
+        if(starts_with($command, $useDbCommand)) {
+            return $this->useDatabase(trim_leading_string($command, $useDbCommand));
+        }
+        if($command == 'list tables') {
+            return $this->listTables();
+        }
+        $createTableCommand = 'create table ';
+        if(starts_with($command, $createTableCommand)) {
+            return $this->createTable(trim_leading_string($command, $createTableCommand));
+        }
+
 
         return 'Unknown command';
     }
@@ -71,5 +85,30 @@ class PhpDB
         }
 
         return implode(', ', $databases);
+    }
+
+    private function useDatabase($name)
+    {
+        $database = $this->dataStore->getDatabase($name);
+        if($database != null) {
+            $this->activeDatabase = $database;
+            return "Active database: $name";
+        }
+        return "Unknown database $name";
+    }
+
+    private function createTable($tableStructure)
+    {
+        if($this->activeDatabase == null) {
+            return 'No active database';
+        }
+    }
+
+    private function listTables()
+    {
+        if($this->activeDatabase == null) {
+            return 'No active database';
+        }
+        return "No tables in database {$this->activeDatabase->getName()}";
     }
 }

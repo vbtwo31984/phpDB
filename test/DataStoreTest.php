@@ -54,4 +54,12 @@ class DataStoreTest extends TestCase
         $this->dataStore->addDatabase($database);
     }
 
+    public function testCanGetDatabaseByName()
+    {
+        $database = new Database('test');
+        $this->dataStore->addDatabase($database);
+
+        $returnedDatabase = $this->dataStore->getDatabase('test');
+        $this->assertEquals('test', $returnedDatabase->getName());
+    }
 }

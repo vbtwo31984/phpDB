@@ -20,4 +20,9 @@ class DataStore
         }
         $this->databases[$database->getName()] = $database;
     }
+
+    public function getDatabase($name)
+    {
+        return $this->databases[$name];
+    }
 }

@@ -38,7 +38,7 @@ class PhpDBTest extends TestCase
         $this->assertEquals('Unknown command', $result);
     }
 
-    public function testListDatabasesReturnsMessageWhenNoDatabases()
+    public function testListDatabasesReturnsMessageWhenNoDatabasesExist()
     {
         $result = $this->db->processCommand('list databases');
         $this->assertEquals('No databases', $result);
@@ -74,5 +74,41 @@ class PhpDBTest extends TestCase
     {
         $result = $this->db->processCommand('create database test one');
         $this->assertEquals('Name test one is invalid', $result);
+    }
+
+    public function testUseDatabaseCommandSwitchesDatabases()
+    {
+        $this->db->processCommand('create database test');
+        $result = $this->db->processCommand('use database test');
+        $this->assertEquals('Active database: test', $result);
+    }
+
+    public function testUseNonExistantDatabaseReturnsError()
+    {
+        $result = $this->db->processCommand('use database test');
+        $this->assertEquals('Unknown database test', $result);
+    }
+
+    public function testCreateTableWithoutUsingDatabaseReturnsError()
+    {
+        $result = $this->db->processCommand('create table test1 (id int, name varchar)');
+        $this->assertEquals('No active database', $result);
+    }
+
+    public function testListTablesReturnsErrorMessageWithoutUsingDatabase()
+    {
+        $result = $this->db->processCommand('list tables');
+
+        $this->assertEquals('No active database', $result);
+    }
+
+    public function testListTablesReturnsMessageWhenNoTablesExist()
+    {
+
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $result = $this->db->processCommand('list tables');
+
+        $this->assertEquals('No tables in database test', $result);
     }
 }
