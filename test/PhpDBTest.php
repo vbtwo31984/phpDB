@@ -130,4 +130,28 @@ class PhpDBTest extends TestCase
         $result = $this->db->processCommand('list tables');
         $this->assertEquals('table1', $result);
     }
+
+    public function testSelectFromEmptyTableReturnsNoRowsMessage()
+    {
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $this->db->processCommand('create table table1 (id int, name varchar)');
+        $result = $this->db->processCommand('select * from table1');
+        $this->assertEquals('No rows', $result);
+    }
+
+    public function testSelectWhenNoActiveDatabaseReturnsMessage()
+    {
+        $result = $this->db->processCommand('select * from table1');
+        $this->assertEquals('No active database', $result);
+    }
+
+    public function testSelectFromNonExistingTableReturnsMessage()
+    {
+
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $result = $this->db->processCommand('select * from table1');
+        $this->assertEquals('Table table1 does not exist', $result);
+    }
 }

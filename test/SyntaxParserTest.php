@@ -87,4 +87,11 @@ class SyntaxParserTest extends TestCase
         $this->assertArrayHasKey('name', $table->getColumnDefinitions());
         $this->assertEquals('varchar', $table->getColumnDefinitions()['name']);
     }
+
+    public function testParseSelectReturnsTableName()
+    {
+        $string = 'select * from table1';
+        $result = SyntaxParser::parseSelect($string);
+        $this->assertArrayHasKey('table1', $result);
+    }
 }

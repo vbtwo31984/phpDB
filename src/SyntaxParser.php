@@ -8,20 +8,20 @@ use PhpDB\Exceptions\ParseException;
 
 class SyntaxParser
 {
-    public static function parseCreateTable($string)
+    public static function parseCreateTable($command)
     {
         // remove create table
-        $string = trim_leading_string($string, 'create table ');
+        $command = trim_leading_string($command, 'create table ');
 
         // to send to preg functions
         $matches = [];
 
         // parse out table name - everything up to first (
-        preg_match('/^[^(]*/', $string, $matches);
+        preg_match('/^[^(]*/', $command, $matches);
         $tableName = trim($matches[0]);
 
         // parse out columns - everything in between ( )
-        preg_match_all('/\(([^\)]*)\)/', $string, $matches);
+        preg_match_all('/\(([^\)]*)\)/', $command, $matches);
 
         // multiple parentheses found, invalid syntax
         if(count($matches[1]) > 1) {
@@ -46,5 +46,25 @@ class SyntaxParser
         }
 
         return new Table($tableName, $columnDefinitions);
+    }
+
+    public static function parseSelect($command)
+    {
+        // remove leading select, since we're only supporting select *
+        $command = trim_leading_string($command, 'select * from ');
+
+        // to send to preg functions
+        $matches = [];
+
+        // parse out table name - everything up to where
+        preg_match('/^.+(?=where)/', $command, $matches);
+        if(count($matches) > 0) { // had where clause
+            $tableName = trim($matches[0]);
+        }
+        else { // no where clause, everything is the table name
+            $tableName = trim($command);
+        }
+
+        return [$tableName=>[]];
     }
 }

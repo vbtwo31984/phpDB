@@ -59,7 +59,9 @@ class PhpDB
         if(starts_with($command, 'create table ')) {
             return $this->createTable($command);
         }
-
+        if(starts_with($command, 'select * from ')) {
+            return $this->select($command);
+        }
 
         return 'Unknown command';
     }
@@ -116,5 +118,21 @@ class PhpDB
             return implode(', ', $tableNames);
         }
         return "No tables in database {$this->activeDatabase->getName()}";
+    }
+
+    private function select($command)
+    {
+        if($this->activeDatabase == null) {
+            return 'No active database';
+        }
+
+        $parsedTable = SyntaxParser::parseSelect($command);
+        $tableName = key($parsedTable);
+        $table = $this->activeDatabase->getTable($tableName);
+        if($table == null) {
+            return "Table $tableName does not exist";
+        }
+
+        return 'No rows';
     }
 }
