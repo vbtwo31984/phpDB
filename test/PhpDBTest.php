@@ -108,7 +108,6 @@ class PhpDBTest extends TestCase
 
     public function testListTablesReturnsMessageWhenNoTablesExist()
     {
-
         $this->db->processCommand('create database test');
         $this->db->processCommand('use database test');
         $result = $this->db->processCommand('list tables');
@@ -122,5 +121,13 @@ class PhpDBTest extends TestCase
         $this->assertEquals('No active database', $result);
     }
 
-
+    public function testListTablesAfterCreateTableReturnsTableName()
+    {
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $result = $this->db->processCommand('create table table1 (id int)');
+        $this->assertEquals('Table table1 created', $result);
+        $result = $this->db->processCommand('list tables');
+        $this->assertEquals('table1', $result);
+    }
 }

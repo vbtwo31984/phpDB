@@ -56,9 +56,8 @@ class PhpDB
         if($command == 'list tables') {
             return $this->listTables();
         }
-        $createTableCommand = 'create table ';
-        if(starts_with($command, $createTableCommand)) {
-            return $this->createTable(trim_leading_string($command, $createTableCommand));
+        if(starts_with($command, 'create table ')) {
+            return $this->createTable($command);
         }
 
 
@@ -97,17 +96,24 @@ class PhpDB
         return "Unknown database $name";
     }
 
-    private function createTable($tableStructure)
+    private function createTable($command)
     {
         if($this->activeDatabase == null) {
             return 'No active database';
         }
+        $table = SyntaxParser::parseCreateTable($command);
+        $this->activeDatabase->addTable($table);
+        return "Table {$table->getName()} created";
     }
 
     private function listTables()
     {
         if($this->activeDatabase == null) {
             return 'No active database';
+        }
+        $tableNames = $this->activeDatabase->getListOfTables();
+        if(count($tableNames) > 0) {
+            return implode(', ', $tableNames);
         }
         return "No tables in database {$this->activeDatabase->getName()}";
     }
