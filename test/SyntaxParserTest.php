@@ -16,7 +16,7 @@ class SyntaxParserTest extends TestCase
 
     /**
      * @expectedException \PhpDB\Exceptions\InvalidTableDefinitionException
-     * @expectedExceptionMessage No column definitions
+     * @expectedExceptionMessage No columns defined
      */
     public function testParseNoColumnDefinitionsReturnsError()
     {
@@ -40,7 +40,7 @@ class SyntaxParserTest extends TestCase
      */
     public function testParseInvalidColumnNameReturnsError()
     {
-        $string = 'create table test test (id-id int)';
+        $string = 'create table test (id-id int)';
         SyntaxParser::parseCreateTable($string);
     }
 
@@ -50,7 +50,7 @@ class SyntaxParserTest extends TestCase
      */
     public function testParseNoDataTypeReturnsError()
     {
-        $string = 'create table test test (id)';
+        $string = 'create table test (id)';
         SyntaxParser::parseCreateTable($string);
     }
 
@@ -69,7 +69,7 @@ class SyntaxParserTest extends TestCase
         $string = 'create table test (id int, name varchar)';
         $table = SyntaxParser::parseCreateTable($string);
         $this->assertEquals('test', $table->getName());
-        $this->assertCount(2, $table->getColumnDefinitions);
+        $this->assertCount(2, $table->getColumnDefinitions());
         $this->assertArrayHasKey('id', $table->getColumnDefinitions());
         $this->assertEquals('int', $table->getColumnDefinitions()['id']);
         $this->assertArrayHasKey('name', $table->getColumnDefinitions());
@@ -81,7 +81,7 @@ class SyntaxParserTest extends TestCase
         $string = 'create table test(id int,name varchar)';
         $table = SyntaxParser::parseCreateTable($string);
         $this->assertEquals('test', $table->getName());
-        $this->assertCount(2, $table->getColumnDefinitions);
+        $this->assertCount(2, $table->getColumnDefinitions());
         $this->assertArrayHasKey('id', $table->getColumnDefinitions());
         $this->assertEquals('int', $table->getColumnDefinitions()['id']);
         $this->assertArrayHasKey('name', $table->getColumnDefinitions());

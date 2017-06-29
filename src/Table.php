@@ -20,6 +20,7 @@ class Table
         if(!is_array($columnDefinitions) || count($columnDefinitions) === 0) {
             throw new InvalidTableDefinitionException('No columns defined');
         }
+        $this->checkForInvalidColumnNames($columnDefinitions);
         $this->checkForUnsupportedTypes($columnDefinitions);
         $this->name = $name;
         $this->columnDefinitions = $columnDefinitions;
@@ -37,12 +38,19 @@ class Table
 
     private function checkForUnsupportedTypes($columnDefinitions)
     {
-        $unsupportedFields = array_filter($columnDefinitions,function($value) {
-            return !in_array($value, $this->supportedTypes);
-        });
-        if(count($unsupportedFields) > 0) {
-            $type = current($unsupportedFields);
-            throw new UnsupportedTypeException("Type $type is not supported");
+        foreach($columnDefinitions as $type) {
+            if(!in_array($type, $this->supportedTypes)) {
+                throw new UnsupportedTypeException("Type $type is not supported");
+            }
+        }
+    }
+
+    private function checkForInvalidColumnNames($columnDefinitions)
+    {
+        foreach($columnDefinitions as $name=>$type) {
+            if(preg_match('/[^a-zA-Z0-9_]/', $name)) {
+                throw new InvalidNameException("Column name $name is invalid");
+            }
         }
     }
 }

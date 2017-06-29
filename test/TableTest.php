@@ -59,4 +59,13 @@ class TableTest extends TestCase
     {
         new Table('test', ['price'=>'double']);
     }
+
+    /**
+     * @expectedException \PhpDB\Exceptions\InvalidNameException
+     * @expectedExceptionMessage Column name bad name is invalid
+     */
+    public function testInvalidColumnNameThrowsError()
+    {
+        new Table('test', ['bad name'=>'int']);
+    }
 }
