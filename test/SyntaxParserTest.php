@@ -95,6 +95,35 @@ class SyntaxParserTest extends TestCase
         $this->assertArrayHasKey('table1', $result);
     }
 
+    public function testParseSelectReturnsWhereClauseColumnAndValue()
+    {
+        $string = "select * from table1 where name = 'John'";
+        $result = SyntaxParser::parseSelect($string);
+        $whereClause = $result['table1'];
+        $this->assertArrayHasKey('name',$whereClause);
+        $this->assertContains('John', $whereClause);
+    }
+
+    /**
+     * @expectedException \PhpDB\Exceptions\ParseException
+     * @expectedExceptionMessage Select syntax invalid
+     */
+    public function testParseSelectEmptyWhereReturnsError()
+    {
+        $string = "select * from table1 where";
+        SyntaxParser::parseSelect($string);
+    }
+
+    /**
+     * @expectedException \PhpDB\Exceptions\ParseException
+     * @expectedExceptionMessage Select syntax invalid
+     */
+    public function testParseSelectInvalidWhereReturnsError()
+    {
+        $string = "select * from table1 where id 123";
+        SyntaxParser::parseSelect($string);
+    }
+
     public function testParseInsertReturnsTableName()
     {
         $string = 'insert into table1 (id) values (1)';

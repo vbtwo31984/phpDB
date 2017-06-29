@@ -65,7 +65,25 @@ class SyntaxParser
             $tableName = trim($command);
         }
 
-        return [$tableName=>[]];
+        // parse out where
+        $where = [];
+        preg_match('/where(.*)$/', $command, $matches);
+        if(count($matches) > 0) {
+            $whereClause = $matches[1];
+            list($column, $value) = explode('=', $whereClause, 2);
+            $column = trim($column);
+            // trim out the spaces or ' chars from value
+            $value = trim($value, " \t\n\r'");
+
+            if(strlen($column) == 0 || strlen($value) == 0) {
+                throw new ParseException('Select syntax invalid');
+            }
+
+            $where[$column] = $value;
+        }
+
+
+        return [$tableName=>$where];
     }
 
     public static function parseInsert($command)
