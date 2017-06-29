@@ -94,4 +94,43 @@ class SyntaxParserTest extends TestCase
         $result = SyntaxParser::parseSelect($string);
         $this->assertArrayHasKey('table1', $result);
     }
+
+    public function testParseInsertReturnsTableName()
+    {
+        $string = 'insert into table1 (id) values (1)';
+        $result = SyntaxParser::parseInsert($string);
+        $this->assertArrayHasKey('table1', $result);
+    }
+
+    public function testParseInsertReturnsColumnValues()
+    {
+        $string = "insert into table1 (id, name) values (1, 'Appleseed, John')";
+        $result = SyntaxParser::parseInsert($string);
+        $columnValues = $result['table1'];
+        $this->assertCount(2, $columnValues);
+        $this->assertArrayHasKey('id', $columnValues);
+        $this->assertEquals(1, $columnValues['id']);
+        $this->assertArrayHasKey('name', $columnValues);
+        $this->assertEquals('Appleseed, John', $columnValues['name']);
+    }
+
+    /**
+     * @expectedException \PhpDB\Exceptions\ParseException
+     * @expectedExceptionMessage Number of columns and values does not match
+     */
+    public function testParseInsertWithDifferentNumberOfColumnsAndValuesThrowsError()
+    {
+        $string = 'insert into table1 (id, name) values (1)';
+        SyntaxParser::parseInsert($string);
+    }
+
+    /**
+     * @expectedException \PhpDB\Exceptions\ParseException
+     * @expectedExceptionMessage Insert syntax invalid
+     */
+    public function testParseInsertWithNoValuesThrowsError()
+    {
+        $string = 'insert into table1 (id)';
+        SyntaxParser::parseInsert($string);
+    }
 }

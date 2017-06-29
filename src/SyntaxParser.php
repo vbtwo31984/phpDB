@@ -67,4 +67,41 @@ class SyntaxParser
 
         return [$tableName=>[]];
     }
+
+    public static function parseInsert($command)
+    {
+        // test basic syntax
+        if(!preg_match('/^insert into .+ \(.+\) values \(.+\)$/', $command)) {
+            throw new ParseException('Insert syntax invalid');
+        }
+
+        // remove leading insert
+        $command = trim_leading_string($command, 'insert into ');
+
+        // parse out table name - everything up to first (
+        preg_match('/^[^(]*/', $command, $matches);
+        $tableName = trim($matches[0]);
+
+        // parse out column names and values
+        $matches = [];
+        preg_match_all('/\((.+)\) values/', $command, $matches);
+        $columnsString = $matches[1][0];
+        preg_match_all('/values \((.+)\)$/', $command, $matches);
+        $valuesString = $matches[1][0];
+
+        $columns = str_getcsv($columnsString);
+        $columns  = array_map(function ($column) {
+            return trim($column);
+        }, $columns);
+        $values = str_getcsv($valuesString, ',', "'");
+        $values = array_map(function($value) {
+            return trim($value);
+        }, $values);
+
+        if(count($columns) != count($values)) {
+            throw new ParseException('Number of columns and values does not match');
+        }
+
+        return [$tableName=>array_combine($columns, $values)];
+    }
 }
