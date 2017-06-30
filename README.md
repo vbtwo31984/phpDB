@@ -35,6 +35,14 @@ Creates a table with name tablename in the currently active database
 There are only 2 types supported - int and varchar
 
 Everything you insert into an int column will convert into an integer using PHP's intval function
+```sql
+insert into tablename (column1, column2, ...) values (value1, value2, ...)
+```
+Inserts a row into tablename. You must specify the column names, you cannot just `insert into tablename values (value1, value2, ...)` 
+
+The columns must be a subset of what's in the table definition. Any columns not specified will be set to null.
+
+The values will be converted into the appropriate type based on the table definition. Strings should be 'single quoted'.
 ```
 select * from tablename
 ```

@@ -143,12 +143,29 @@ class PhpDBTest extends TestCase
 
     public function testInvalidCreateSyntaxReturnsMessage()
     {
-
         $this->db->processCommand('create database test');
         $this->db->processCommand('use database test');
         $result = $this->db->processCommand('create table table1 (id int) (id2 int)');
 
         $this->assertEquals('Create table syntax invalid', $result);
+    }
+
+    public function testCreateWithInvalidTableNameReturnsMessage()
+    {
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $result = $this->db->processCommand('create table table one (id int)');
+
+        $this->assertEquals('Name table one is invalid', $result);
+    }
+
+    public function testCreateWithInvalidColumnNameReturnsMessage()
+    {
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $result = $this->db->processCommand('create table table1 (id id int)');
+
+        $this->assertEquals('Column name id id is invalid', $result);
     }
 
     public function testSelectFromEmptyTableReturnsNoRowsMessage()
@@ -200,7 +217,8 @@ class PhpDBTest extends TestCase
         $this->assertEquals("id, name\n1, 'John'", $result);
     }
 
-    public function testInvalidInsertSyntaxReturnsMessage() {
+    public function testInvalidInsertSyntaxReturnsMessage()
+    {
         $this->db->processCommand('create database test');
         $this->db->processCommand('use database test');
         $this->db->processCommand('create table table1 (id int, name varchar)');
@@ -208,7 +226,8 @@ class PhpDBTest extends TestCase
         $this->assertEquals('Insert syntax invalid', $result);
     }
 
-    public function testInvalidSelectSyntaxReturnsMessage() {
+    public function testInvalidSelectSyntaxReturnsMessage()
+    {
 
         $this->db->processCommand('create database test');
         $this->db->processCommand('use database test');

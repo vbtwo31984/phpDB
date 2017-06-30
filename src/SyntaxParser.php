@@ -8,6 +8,12 @@ use PhpDB\Exceptions\ParseException;
 
 class SyntaxParser
 {
+    /**
+     * @param string $command
+     * @return Table the table to be created
+     * @throws InvalidTableDefinitionException if column has no data type
+     * @throws ParseException if the syntax is invalid
+     */
     public static function parseCreateTable($command)
     {
         // remove create table
@@ -24,7 +30,7 @@ class SyntaxParser
         preg_match_all('/\(([^\)]*)\)/', $command, $matches);
 
         // multiple parentheses found, invalid syntax
-        if(count($matches[1]) > 1) {
+        if (count($matches[1]) > 1) {
             throw new ParseException('Create table syntax invalid');
         }
 
@@ -32,15 +38,17 @@ class SyntaxParser
         $columnsWithTypes = explode(',', $columnDefinitionsString);
 
         $columnDefinitions = [];
-        foreach($columnsWithTypes as $columnWithType) {
-            if(strlen($columnWithType) > 0) {
+        foreach ($columnsWithTypes as $columnWithType) {
+            if (strlen($columnWithType) > 0) {
                 // regex splits by last space, so everything up to last space is column name, and everything after last space is type
                 list($name, $type) = preg_split("/\s+(?=\S*+$)/", $columnWithType);
                 $name = trim($name);
                 $type = trim($type);
-                if(strlen($type) === 0) {
+
+                if (strlen($type) === 0) {
                     throw new InvalidTableDefinitionException("Column $name has no data type");
                 }
+
                 $columnDefinitions[$name] = $type;
             }
         }
@@ -48,6 +56,11 @@ class SyntaxParser
         return new Table($tableName, $columnDefinitions);
     }
 
+    /**
+     * @param string $command
+     * @return array key is table name, value is associative array of where clause: $column => $value
+     * @throws ParseException if there is syntax error
+     */
     public static function parseSelect($command)
     {
         // remove leading select, since we're only supporting select *
@@ -58,24 +71,23 @@ class SyntaxParser
 
         // parse out table name - everything up to where
         preg_match('/^.+(?=where)/', $command, $matches);
-        if(count($matches) > 0) { // had where clause
+        if (count($matches) > 0) { // had where clause
             $tableName = trim($matches[0]);
-        }
-        else { // no where clause, everything is the table name
+        } else { // no where clause, everything is the table name
             $tableName = trim($command);
         }
 
         // parse out where
         $where = [];
         preg_match('/where(.*)$/', $command, $matches);
-        if(count($matches) > 0) {
+        if (count($matches) > 0) {
             $whereClause = $matches[1];
             list($column, $value) = explode('=', $whereClause, 2);
             $column = trim($column);
             // trim out the spaces or ' chars from value
             $value = trim($value, " \t\n\r'");
 
-            if(strlen($column) == 0 || strlen($value) == 0) {
+            if (strlen($column) == 0 || strlen($value) == 0) {
                 throw new ParseException('Select syntax invalid');
             }
 
@@ -83,13 +95,18 @@ class SyntaxParser
         }
 
 
-        return [$tableName=>$where];
+        return [$tableName => $where];
     }
 
+    /**
+     * @param string $command
+     * @return array key is table name, value is associative array of data to insert [$column=>$value, $column2=>$value2, ...]
+     * @throws ParseException if syntax error
+     */
     public static function parseInsert($command)
     {
         // test basic syntax
-        if(!preg_match('/^insert into .+ ?\(.+\) ?values ?\(.+\)$/', $command)) {
+        if (!preg_match('/^insert into .+ ?\(.+\) ?values ?\(.+\)$/', $command)) {
             throw new ParseException('Insert syntax invalid');
         }
 
@@ -104,22 +121,29 @@ class SyntaxParser
         $matches = [];
         preg_match_all('/\((.+)\) ?values/', $command, $matches);
         $columnsString = $matches[1][0];
+
         preg_match_all('/values ?\((.+)\)$/', $command, $matches);
         $valuesString = $matches[1][0];
 
+        // split by commas
         $columns = str_getcsv($columnsString);
-        $columns  = array_map(function ($column) {
+        // trim every column name
+        $columns = array_map(function ($column) {
             return trim($column);
         }, $columns);
+
+        // split by commas, better than explode since it also removes enclosing quotes, and takes into account commas inside quotes
         $values = str_getcsv($valuesString, ',', "'");
-        $values = array_map(function($value) {
+        // trim every value
+        $values = array_map(function ($value) {
             return trim($value);
         }, $values);
 
-        if(count($columns) != count($values)) {
+        // amount of columns must match to amount of values
+        if (count($columns) != count($values)) {
             throw new ParseException('Number of columns and values does not match');
         }
 
-        return [$tableName=>array_combine($columns, $values)];
+        return [$tableName => array_combine($columns, $values)];
     }
 }
