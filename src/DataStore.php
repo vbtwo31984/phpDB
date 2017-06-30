@@ -4,6 +4,10 @@ namespace PhpDB;
 
 use PhpDB\Exceptions\DuplicateDatabaseException;
 
+/**
+ * Stores databases
+ * @package PhpDB
+ */
 class DataStore
 {
     private $databases = [];

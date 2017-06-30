@@ -25,7 +25,7 @@ class SyntaxParser
 
         // multiple parentheses found, invalid syntax
         if(count($matches[1]) > 1) {
-            throw new ParseException('Invalid create table syntax');
+            throw new ParseException('Create table syntax invalid');
         }
 
         $columnDefinitionsString = $matches[1][0];

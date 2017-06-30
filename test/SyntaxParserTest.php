@@ -56,7 +56,7 @@ class SyntaxParserTest extends TestCase
 
     /**
      * @expectedException \PhpDB\Exceptions\ParseException
-     * @expectedExceptionMessage Invalid create table syntax
+     * @expectedExceptionMessage Create table syntax invalid
      */
     public function testInvalidSyntaxReturnError()
     {

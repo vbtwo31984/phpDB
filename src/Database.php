@@ -6,6 +6,10 @@ namespace PhpDB;
 use PhpDB\Exceptions\DuplicateTableException;
 use PhpDB\Exceptions\InvalidNameException;
 
+/**
+ * A representation of a database, stores tables
+ * @package PhpDB
+ */
 class Database
 {
     private $name;

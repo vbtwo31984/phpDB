@@ -4,6 +4,7 @@ namespace PhpDB;
 
 
 use PhpDB\Exceptions\DuplicateDatabaseException;
+use PhpDB\Exceptions\DuplicateTableException;
 use PhpDB\Exceptions\InvalidNameException;
 use PhpDB\Exceptions\ParseException;
 
@@ -16,7 +17,12 @@ class PhpDB
     /** @var Database */
     private $activeDatabase;
 
-    function __construct($inputStream, $outputStream)
+    /**
+     * PhpDB constructor.
+     * @param resource $inputStream  input stream to use for reading input, usually STDIN
+     * @param resource $outputStream output stream to use for writing output, usually STDOUT
+     */
+    function __construct($inputStream = STDIN, $outputStream = STDOUT)
     {
         $this->inputStream = $inputStream;
         $this->outputStream = $outputStream;
@@ -25,6 +31,7 @@ class PhpDB
 
     public function run() {
         fwrite($this->outputStream, "Welcome to PhpDB. Enter a command or 'quit' to exit\n");
+        // loop reading a line, processing the command, writing output
         while(true) {
             fwrite($this->outputStream, '> ');
             $command = strtolower(trim(fgets($this->inputStream,1024)));
@@ -39,6 +46,12 @@ class PhpDB
         }
     }
 
+    /**
+     * @param string $command
+     * @return string
+     *
+     * Choose which command to run, return output
+     */
     public function processCommand($command)
     {
         $createDbCommand = 'create database ';
@@ -105,9 +118,14 @@ class PhpDB
         if($this->activeDatabase == null) {
             return 'No active database';
         }
-        $table = SyntaxParser::parseCreateTable($command);
-        $this->activeDatabase->addTable($table);
-        return "Table {$table->getName()} created";
+        try {
+            $table = SyntaxParser::parseCreateTable($command);
+            $this->activeDatabase->addTable($table);
+            return "Table {$table->getName()} created";
+        }
+        catch(DuplicateTableException|ParseException $e) {
+            return $e->getMessage();
+        }
     }
 
     private function listTables()

@@ -131,6 +131,26 @@ class PhpDBTest extends TestCase
         $this->assertEquals('table1', $result);
     }
 
+    public function testCreateDuplicateTableReturnsMessage()
+    {
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $this->db->processCommand('create table table1 (id int)');
+        $result = $this->db->processCommand('create table table1 (id int)');
+
+        $this->assertEquals('Table table1 already exists', $result);
+    }
+
+    public function testInvalidCreateSyntaxReturnsMessage()
+    {
+
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $result = $this->db->processCommand('create table table1 (id int) (id2 int)');
+
+        $this->assertEquals('Create table syntax invalid', $result);
+    }
+
     public function testSelectFromEmptyTableReturnsNoRowsMessage()
     {
         $this->db->processCommand('create database test');

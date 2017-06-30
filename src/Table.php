@@ -7,6 +7,10 @@ use PhpDB\Exceptions\InvalidNameException;
 use PhpDB\Exceptions\InvalidTableDefinitionException;
 use PhpDB\Exceptions\UnsupportedTypeException;
 
+/**
+ * A representation of a table, stores data, can query data using where clause
+ * @package PhpDB
+ */
 class Table
 {
     private $name;
