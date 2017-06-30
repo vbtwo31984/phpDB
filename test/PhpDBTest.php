@@ -148,10 +148,20 @@ class PhpDBTest extends TestCase
 
     public function testSelectFromNonExistingTableReturnsMessage()
     {
-
         $this->db->processCommand('create database test');
         $this->db->processCommand('use database test');
         $result = $this->db->processCommand('select * from table1');
         $this->assertEquals('Table table1 does not exist', $result);
     }
+
+//    public function testCanInsertRowAndSelectIt()
+//    {
+//
+//        $this->db->processCommand('create database test');
+//        $this->db->processCommand('use database test');
+//        $this->db->processCommand('create table table1 (id int, name varchar)');
+//        $this->db->processCommand("insert into table1 (id, name) values (1, 'John')");
+//        $result = $this->db->processCommand('select * from table1');
+//        $this->assertEquals("id, name\n1, 'John'", $result);
+//    }
 }
