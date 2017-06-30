@@ -5,6 +5,7 @@ namespace PhpDB;
 
 use PhpDB\Exceptions\DuplicateDatabaseException;
 use PhpDB\Exceptions\InvalidNameException;
+use PhpDB\Exceptions\ParseException;
 
 class PhpDB
 {
@@ -40,8 +41,6 @@ class PhpDB
 
     public function processCommand($command)
     {
-        $command = strtolower(trim($command));
-
         $createDbCommand = 'create database ';
         if(starts_with($command, $createDbCommand)) {
             return $this->createDatabase(trim_leading_string($command, $createDbCommand));
@@ -61,6 +60,9 @@ class PhpDB
         }
         if(starts_with($command, 'select * from ')) {
             return $this->select($command);
+        }
+        if(starts_with($command, 'insert into ')) {
+            return $this->insert($command);
         }
 
         return 'Unknown command';
@@ -126,13 +128,55 @@ class PhpDB
             return 'No active database';
         }
 
-        $parsedTable = SyntaxParser::parseSelect($command);
-        $tableName = key($parsedTable);
-        $table = $this->activeDatabase->getTable($tableName);
-        if($table == null) {
-            return "Table $tableName does not exist";
+        try {
+            $parsedTable = SyntaxParser::parseSelect($command);
+            $tableName = key($parsedTable);
+            $table = $this->activeDatabase->getTable($tableName);
+            if ($table == null) {
+                return "Table $tableName does not exist";
+            }
+            $whereClause = $parsedTable[$tableName];
+            $data = $table->select($whereClause);
+            if (count($data) > 0) {
+                $result = implode(', ', array_keys($data[0]));
+                foreach ($data as $row) {
+                    $stringifiedRow = array_map(function ($item) {
+                        if (is_string($item)) {
+                            $item = "'$item'";
+                        }
+                        return $item;
+                    }, $row);
+                    $result .= "\n" . implode(', ', $stringifiedRow);
+                }
+                return $result;
+            }
+
+            return 'No rows';
+        }
+        catch(ParseException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    private function insert($command)
+    {
+        if($this->activeDatabase == null) {
+            return 'No active database';
         }
 
-        return 'No rows';
+        try {
+            $parsedCommand = SyntaxParser::parseInsert($command);
+            $tableName = key($parsedCommand);
+            $table = $this->activeDatabase->getTable($tableName);
+            if ($table == null) {
+                return "Table $tableName does not exist";
+            }
+            $table->insert($parsedCommand[$tableName]);
+
+            return 'Row inserted successfully';
+        }
+        catch (ParseException $e) {
+            return $e->getMessage();
+        }
     }
 }

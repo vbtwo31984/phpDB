@@ -154,14 +154,46 @@ class PhpDBTest extends TestCase
         $this->assertEquals('Table table1 does not exist', $result);
     }
 
-//    public function testCanInsertRowAndSelectIt()
-//    {
-//
-//        $this->db->processCommand('create database test');
-//        $this->db->processCommand('use database test');
-//        $this->db->processCommand('create table table1 (id int, name varchar)');
-//        $this->db->processCommand("insert into table1 (id, name) values (1, 'John')");
-//        $result = $this->db->processCommand('select * from table1');
-//        $this->assertEquals("id, name\n1, 'John'", $result);
-//    }
+    public function testInsertingWithoutActiveDatabaseReturnsMessage()
+    {
+        $result = $this->db->processCommand("insert into table1 (id, name) values (1, 'John')");
+        $this->assertEquals('No active database', $result);
+    }
+
+    public function testInsertingIntoNonExistingTableShowsReturnsMessage()
+    {
+
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $result = $this->db->processCommand('insert into table1 (id) values (1)');
+        $this->assertEquals('Table table1 does not exist', $result);
+    }
+
+    public function testCanInsertRowAndSelectIt()
+    {
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $this->db->processCommand('create table table1 (id int, name varchar)');
+        $result = $this->db->processCommand("insert into table1 (id, name) values (1, 'John')");
+        $this->assertEquals('Row inserted successfully', $result);
+        $result = $this->db->processCommand('select * from table1');
+        $this->assertEquals("id, name\n1, 'John'", $result);
+    }
+
+    public function testInvalidInsertSyntaxReturnsMessage() {
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $this->db->processCommand('create table table1 (id int, name varchar)');
+        $result = $this->db->processCommand("insert into table1(id name)values (1, 'John')");
+        $this->assertEquals('Insert syntax invalid', $result);
+    }
+
+    public function testInvalidSelectSyntaxReturnsMessage() {
+
+        $this->db->processCommand('create database test');
+        $this->db->processCommand('use database test');
+        $this->db->processCommand('create table table1 (id int, name varchar)');
+        $result = $this->db->processCommand('select * from table1 where la la');
+        $this->assertEquals('Select syntax invalid', $result);
+    }
 }

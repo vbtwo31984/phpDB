@@ -23,6 +23,10 @@ class Database
         return $this->name;
     }
 
+    /**
+     * @param string $name
+     * @return Table
+     */
     public function getTable($name)
     {
         return $this->tables[$name];

@@ -89,7 +89,7 @@ class SyntaxParser
     public static function parseInsert($command)
     {
         // test basic syntax
-        if(!preg_match('/^insert into .+ \(.+\) values \(.+\)$/', $command)) {
+        if(!preg_match('/^insert into .+ ?\(.+\) ?values ?\(.+\)$/', $command)) {
             throw new ParseException('Insert syntax invalid');
         }
 
@@ -102,9 +102,9 @@ class SyntaxParser
 
         // parse out column names and values
         $matches = [];
-        preg_match_all('/\((.+)\) values/', $command, $matches);
+        preg_match_all('/\((.+)\) ?values/', $command, $matches);
         $columnsString = $matches[1][0];
-        preg_match_all('/values \((.+)\)$/', $command, $matches);
+        preg_match_all('/values ?\((.+)\)$/', $command, $matches);
         $valuesString = $matches[1][0];
 
         $columns = str_getcsv($columnsString);
