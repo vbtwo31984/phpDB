@@ -3,6 +3,8 @@ PhpDB is an implementation of a simple sql in memory database using PHP. This li
 
 This supports only a limited subset of SQL, see below for all supported commands.
 
+Requires at least PHP 7.
+
 ## To run
 ```
 php db.php
@@ -55,7 +57,7 @@ php path/to/phpunit.phar
 ```
 
 ## To generate coverage report
-The latest coverage report is in the git repository under [test/coverage](test/coverage/index.html)
+The latest coverage report is in the git repository under [test/coverage](https://rawgit.com/vbtwo31984/phpDB/master/test/coverage/index.html)
 
 If you want to generate your own report, make sure you have xdebug enabled, and run
 ```
