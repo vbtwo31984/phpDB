@@ -184,7 +184,7 @@ class PhpDBTest extends TestCase
         $this->db->processCommand('create database test');
         $this->db->processCommand('use database test');
         $this->db->processCommand('create table table1 (id int, name varchar)');
-        $result = $this->db->processCommand("insert into table1(id name)values (1, 'John')");
+        $result = $this->db->processCommand("insert into table1(id, name)vales (1, 'John')");
         $this->assertEquals('Insert syntax invalid', $result);
     }
 
